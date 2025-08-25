@@ -8,10 +8,10 @@ $dashboardData = [
 ];
 
 // Define database credentials. You must replace these with your actual credentials.
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'l');
+define('DB_HOST', '127.0.0.1');
+define('DB_NAME', 'kokan renge');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', '8TyUN=cV[-Xy.ERB$H}|');
 
 /**
  * Connect to the database using PDO and fetch the data.

@@ -92,7 +92,7 @@ $dashboardData = [
                 </div>
                 <div class="card-title">Total Records</div>
                 <div class="card-value text-blue-700" data-target="<?= $dashboardData['totalRecords'] ?>">0</div>
-                <div class="card-description">All records processed in Konkan Region</div>
+                <div class="card-description">All records processed in Konkan Renge</div>
             </div>
 
             <div class="card green-border">
@@ -119,7 +119,7 @@ $dashboardData = [
                 </div>
                 <div class="card-title">Police Stations</div>
                 <div class="card-value text-purple-700" data-target="<?= $dashboardData['policeStations'] ?>">0</div>
-                <div class="card-description">Total stations in the region</div>
+                <div class="card-description">Total stations in the renge</div>
             </div>
         </div>
     </div>

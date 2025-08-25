@@ -13,13 +13,13 @@ $current_page = $_GET['page'] ?? '';
             <li>
                 <a href="?page=konkan-overview" class="block p-3 rounded-lg text-sm transition-colors
                     <?= $current_page == 'konkan-overview' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700 text-slate-300' ?>">
-                    Konkan region Overview
+                    Konkan renge Overview
                 </a>
             </li>
             <li>
                 <a href="?page=konkan-map" class="block p-3 rounded-lg text-sm transition-colors
                     <?= $current_page == 'konkan-map' ? 'bg-slate-700 text-white' : 'hover:bg-slate-700 text-slate-300' ?>">
-                    Konkan region Map
+                    Konkan renge Map
                 </a>
             </li>
         </ul>

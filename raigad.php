@@ -1,16 +1,17 @@
 <?php
+// Define dashboard data for Raigad district.
 $dashboardData = [
-  'totalRecords'     => '1120',
-  'detectionRate'    => '88%',
-  'yoyChange'        => '-1.2%',
-  'policeStations'   => '29'
+    'totalRecords' => '1402',
+    'detectionRate' => '88%',
+    'yoyChange' => '-10.24%',
+    'policeStations' => '24',
 ];
 
 // Define database credentials.
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'l');
+define('DB_HOST', '127.0.0.1');
+define('DB_NAME', 'kokan renge');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', '8TyUN=cV[-Xy.ERB$H}|');
 
 /**
  * Connect to the database using PDO and fetch the data.
@@ -19,15 +20,14 @@ define('DB_PASS', '');
 function getPoliceStationsData()
 {
     try {
-        // Create a new PDO instance
         $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // SQL query to fetch police station data, filtered for Raigad district only
+        // SQL query filtered for Raigad district
         $sql = "SELECT police_station_code, police_station_en, officer_incharge, contact_number, contact_email,
                        latitude, longitude, district_en, zone_en, division_en, address
                 FROM konkan_police_station
-                WHERE district_en = 'Raigad'"; // <-- Filter added here
+                WHERE district_en = 'Raigad'";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
@@ -57,7 +57,6 @@ function getPoliceStationsData()
         return $stations;
 
     } catch (PDOException $e) {
-        // In a real application, you would log this error and show a user-friendly message.
         die("Database connection failed: " . $e->getMessage());
     }
 }
@@ -73,17 +72,13 @@ function cleanCoordinate($coord)
         return null;
     }
     $coord = strtoupper(trim($coord));
-    // Remove N, S, E, W
     $coord = str_replace(['N','S','E','W'], '', $coord);
-    // Replace multiple dots with a single dot
     $coord = preg_replace('/\.+/', '.', $coord);
-    // Convert to float
     return floatval($coord);
 }
 
 // Fetch the data from the database
 $stations = getPoliceStationsData();
-
 ?>
 
 <!DOCTYPE html>
@@ -91,7 +86,9 @@ $stations = getPoliceStationsData();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raigad Police Stations Map</title>
+    <title>Raigad Police Stations Dashboard & Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://apis.mapmyindia.com/advancedmaps/v1/fa974f01fbe5ffa74497d39011bdb2ac/map_load?v=1.3">
     <style>
       .dashboard-grid {
@@ -153,17 +150,14 @@ $stations = getPoliceStationsData();
             padding: 0;
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; /* Prevents scrollbars on the main body */
+            overflow: auto;
             background-color: #f4f4f4;
         }
-
-        #dashboard-container {
-            position: relative;
-            width: 100%;
+        
+        #main-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 24px;
-            box-sizing: border-box;
         }
 
         #map-container {
@@ -172,29 +166,28 @@ $stations = getPoliceStationsData();
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
+            margin-top: 2rem;
         }
 
-        /* Sidebar styles for the navigation drawer effect */
         #sidebar {
             position: absolute;
             top: 20px;
-            right: -350px; /* Initially off-screen to the right */
+            right: -350px;
             height: auto;
             max-height: calc(50vh - 40px);
             width: 350px;
             background-color: #fff;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow for "pop-out" effect */
-            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth cubic-bezier transition */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             z-index: 1000;
             overflow-y: auto;
             border-radius: 10px;
         }
         #sidebar.active {
-            right: 20px; /* Slides into view */
+            right: 20px;
         }
 
-        /* Sidebar content and close button styles */
         #close-btn {
             position: absolute;
             top: 15px;
@@ -218,8 +211,8 @@ $stations = getPoliceStationsData();
             margin: -20px -20px 20px -20px;
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
-            font-size: 1.75rem; /* Increased font size for prominence */
-            font-weight: bold; /* Ensures the text is bold */
+            font-size: 1.75rem;
+            font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             text-align: center;
         }
@@ -261,39 +254,39 @@ $stations = getPoliceStationsData();
         }
     </style>
 </head>
-<body>
 <body class="p-4 sm:p-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-slate-800 text-center">Thane Rural District Crime Records</h1>
-        <div class="dashboard-grid">
-            <div class="card blue-border">
-                <div class="text-blue-500 icon"><i class="fas fa-file-alt"></i></div>
-                <div class="card-title">Total Records</div>
-                <div class="card-value text-blue-700" data-target="<?= $dashboardData['totalRecords'] ?>">0</div>
-                <div class="card-description">All records processed in Thane Rural</div>
-            </div>
-            <div class="card green-border">
-                <div class="text-green-500 icon"><i class="fas fa-search"></i></div>
-                <div class="card-title">Detection Rate</div>
-                <div class="card-value text-green-700" data-target="<?= $dashboardData['detectionRate'] ?>">0%</div>
-                <div class="card-description">Overall detection success</div>
-            </div>
-            <div class="card orange-border">
-                <div class="text-orange-500 icon"><i class="fas fa-chart-line"></i></div>
-                <div class="card-title">YoY Change</div>
-                <div class="card-value text-orange-700" data-target="<?= $dashboardData['yoyChange'] ?>">0</div>
-                <div class="card-description">2024 vs 2025</div>
-            </div>
-            <div class="card purple-border">
-                <div class="text-purple-500 icon"><i class="fas fa-building"></i></div>
-                <div class="card-title">Police Stations</div>
-                <div class="card-value text-purple-700" data-target="<?= $dashboardData['policeStations'] ?>">0</div>
-                <div class="card-description">Total stations in the district</div>
+    <div id="main-container">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-slate-800 text-center">Raigad District Crime Records Dashboard</h1>
+            <div class="dashboard-grid">
+                <div class="card blue-border">
+                    <div class="text-blue-500 icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="card-title">Total Records</div>
+                    <div class="card-value text-blue-700" data-target="<?= $dashboardData['totalRecords'] ?>">0</div>
+                    <div class="card-description">All records processed in Raigad</div>
+                </div>
+                <div class="card green-border">
+                    <div class="text-green-500 icon"><i class="fas fa-search"></i></div>
+                    <div class="card-title">Detection Rate</div>
+                    <div class="card-value text-green-700" data-target="<?= $dashboardData['detectionRate'] ?>">0%</div>
+                    <div class="card-description">Overall detection success</div>
+                </div>
+                <div class="card orange-border">
+                    <div class="text-orange-500 icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="card-title">YoY Change</div>
+                    <div class="card-value text-orange-700" data-target="<?= $dashboardData['yoyChange'] ?>">0</div>
+                    <div class="card-description">2024 vs 2025</div>
+                </div>
+                <div class="card purple-border">
+                    <div class="text-purple-500 icon"><i class="fas fa-building"></i></div>
+                    <div class="card-title">Police Stations</div>
+                    <div class="card-value text-purple-700" data-target="<?= $dashboardData['policeStations'] ?>">0</div>
+                    <div class="card-description">Total stations in the district</div>
+                </div>
             </div>
         </div>
-    </div></body>
-    <div id="dashboard-container">
-         <div id="map-container">
+
+        <div id="map-container">
             <div id="sidebar">
                 <button id="close-btn">&times;</button>
                 <div id="sidebar-content"></div>
@@ -334,121 +327,98 @@ $stations = getPoliceStationsData();
             });
         });
     </script>
-</body>
-
     <script src="https://apis.mapmyindia.com/advancedmaps/v1/fa974f01fbe5ffa74497d39011bdb2ac/map_load?v=1.3"></script>
     <script>
-    window.onload = function() {
-        const stationsData = <?php echo json_encode($stations); ?>;
-        
-        // --- START OF NEW CODE ---
-        let totalLat = 0;
-        let totalLng = 0;
-        stationsData.forEach(station => {
-            totalLat += station.lat;
-            totalLng += station.lng;
-        });
+        window.onload = function() {
+            const stationsData = <?php echo json_encode($stations); ?>;
+            const sidebar = document.getElementById('sidebar');
+            const sidebarContent = document.getElementById('sidebar-content');
+            const closeBtn = document.getElementById('close-btn');
+            const mapContainer = document.getElementById('map-container');
 
-        const avgLat = totalLat / stationsData.length;
-        const avgLng = totalLng / stationsData.length;
-        // --- END OF NEW CODE ---
-
-        const sidebar = document.getElementById('sidebar');
-        const sidebarContent = document.getElementById('sidebar-content');
-        const closeBtn = document.getElementById('close-btn');
-        const mapContainer = document.getElementById('map-container');
-
-        // Initialize the MapmyIndia map
-        const map = new MapmyIndia.Map("map-container", {
-            // --- UPDATED MAP CENTER ---
-            center: [avgLat, avgLng], 
-            zoom: 9, // You can also increase the zoom slightly if needed
-            // --- END OF UPDATED MAP CENTER ---
-            zoomControl: true,
-            hybrid: true
-        });
-        
-        map.scrollWheelZoom.disable();
-        
-        let isMapActive = false;
-        mapContainer.addEventListener('click', () => {
-            if (!isMapActive) {
-                map.scrollWheelZoom.enable();
-                isMapActive = true;
-                console.log('Scroll zoom enabled on map.');
-            }
-        });
-
-        mapContainer.addEventListener('mouseleave', () => {
-            if (isMapActive) {
-                map.scrollWheelZoom.disable();
-                isMapActive = false;
-                console.log('Scroll zoom disabled on map.');
-            }
-        });
-
-        sidebar.addEventListener('wheel', (e) => {
-            e.stopPropagation();
-        });
-
-        const stationIcon = L.icon({
-            iconUrl: 'police-station.png',
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
-        });
-
-        stationsData.forEach(station => {
-            const marker = L.marker([station.lat, station.lng], { icon: stationIcon }).addTo(map);
-            
-            marker.on('click', () => {
-                sidebarContent.innerHTML = `
-                    <h3 style="font-weight: bold; font-size: 1rem;">Station Details</h3><br/>
-                    <div class="detail-item">
-                        <span class="label">Police Station:</span>
-                        <div class="value">${station.station}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">District:</span>
-                        <div class="value">${station.district}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Zone:</span>
-                        <div class="value">${station.zone}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Division:</span>
-                        <div class="value">${station.division}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Address:</span>
-                        <div class="value">${station.address}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Contact Number:</span>
-                        <div class="value">${station.contact_number}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Email:</span>
-                        <div class="value">${station.contact_email}</div>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Officer In-Charge:</span>
-                        <div class="value">${station.officer}</div>
-                    </div>
-                    <button id="show-trends-btn" class="close-button">Show Crime Trends</button>
-                `;
-                
-                sidebar.classList.add('active');
-                
-                document.getElementById('show-trends-btn').dataset.stationId = station.code;
+            const map = new MapmyIndia.Map("map-container", {
+                center: [18.5, 73.2],
+                zoom: 9,
+                zoomControl: true,
+                hybrid: true
             });
-        });
+            
+            map.scrollWheelZoom.disable();
+            
+            let isMapActive = false;
+            mapContainer.addEventListener('click', () => {
+                if (!isMapActive) {
+                    map.scrollWheelZoom.enable();
+                    isMapActive = true;
+                }
+            });
 
-        closeBtn.onclick = function() {
-            sidebar.classList.remove('active');
+            mapContainer.addEventListener('mouseleave', () => {
+                if (isMapActive) {
+                    map.scrollWheelZoom.disable();
+                    isMapActive = false;
+                }
+            });
+
+            sidebar.addEventListener('wheel', (e) => {
+                e.stopPropagation();
+            });
+
+            const stationIcon = L.icon({
+                iconUrl: 'police-station.png',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40]
+            });
+
+            stationsData.forEach(station => {
+                const marker = L.marker([station.lat, station.lng], { icon: stationIcon }).addTo(map);
+                marker.on('click', () => {
+                    sidebarContent.innerHTML = `
+                        <h3 style="font-weight: bold; font-size: 1rem;">Station Details</h3><br/>
+                        <div class="detail-item">
+                            <span class="label">Police Station:</span>
+                            <div class="value">${station.station}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">District:</span>
+                            <div class="value">${station.district}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Zone:</span>
+                            <div class="value">${station.zone}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Division:</span>
+                            <div class="value">${station.division}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Address:</span>
+                            <div class="value">${station.address}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Contact Number:</span>
+                            <div class="value">${station.contact_number}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Email:</span>
+                            <div class="value">${station.contact_email}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Officer In-Charge:</span>
+                            <div class="value">${station.officer}</div>
+                        </div>
+                        <button id="show-trends-btn" class="close-button">Show Crime Trends</button>
+                    `;
+                    sidebar.classList.add('active');
+                    document.getElementById('show-trends-btn').dataset.stationId = station.code;
+                });
+            });
+
+            closeBtn.onclick = function() {
+                sidebar.classList.remove('active');
+            };
         };
-    };
-</script>
+    </script>
 </body>
 </html>
